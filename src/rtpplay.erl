@@ -44,10 +44,9 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info(generate, {{SSRC, Marker, Seq}, DestIp, DestPort, Socket, TRef} = State) ->
-%	Rtp = #rtp{marker = Marker, payload_type = 18, sequence_number = Seq, timestamp = 100, ssrc = SSRC, payload = <<"!hello from rtpplay!">>},
-%	gen_udp:send(Socket, DestIp, DestPort, rtp:encode(Rtp)),
-%	gen_udp:send(Socket, DestIp, DestPort, <<128,224,68,171,0,5,25,205,0,5,109,113,<<"!hello from rtpplay!">>),
-	gen_udp:send(Socket, DestIp, DestPort, <<128,18,0,100,0,0,0,100,113,142,194,241,33,104,101,108,108,111,32,102,114,111,109,32,114,116,112,112,108,97,121,33>>),
+	TS = Seq * 160, % Hardcoded and innacurate but ok for benchmarking
+%	gen_udp:send(Socket, DestIp, DestPort, <<128:8, Marker:1, 18:7, Seq:16, TS:32, SSRC:32, "!hello from rtpplay!">>),
+	gen_udp:send(Socket, DestIp, DestPort, <<128:8, Marker:1, 8:7, Seq:16, TS:32, SSRC:32, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">>),
 	{noreply, {{SSRC, 0, Seq + 1}, DestIp, DestPort, Socket, TRef}};
 
 handle_info(Info, State) ->
