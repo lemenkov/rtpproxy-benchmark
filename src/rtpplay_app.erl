@@ -10,6 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+	error_logger:tty(false),
 	{ok, PoolSize} = application:get_env(rtpplay, poolsize),
 	{ok, {RtppIp, RtppPort}} = application:get_env(rtpplay, rtppaddr),
 	{ok, MainIp} = application:get_env(rtpplay, mainip),
