@@ -2,19 +2,16 @@
 
 -behaviour(application).
 
+-export([start/0]).
+
 %% Application callbacks
 -export([start/2, stop/1]).
 
-%% ===================================================================
-%% Application callbacks
-%% ===================================================================
-
-start(_StartType, _StartArgs) ->
-	error_logger:tty(false),
+start() ->
+	application:start(rtpplay),
 	{ok, PoolSize} = application:get_env(rtpplay, poolsize),
 	{ok, {RtppIp, RtppPort}} = application:get_env(rtpplay, rtppaddr),
 	{ok, MainIp} = application:get_env(rtpplay, mainip),
-	{ok, Ref} = supervisor:start_link({local, rtpplay_sup}, rtpplay_sup, []),
 	[
 		begin
 				SSRC_A = random:uniform(16#ffffffff),
@@ -30,7 +27,15 @@ start(_StartType, _StartArgs) ->
 		end
 		|| _X <- lists:seq(1, PoolSize)
 	],
-	{ok, Ref}.
+	ok.
+
+%% ===================================================================
+%% Application callbacks
+%% ===================================================================
+
+start(_StartType, _StartArgs) ->
+	error_logger:tty(false),
+	supervisor:start_link({local, rtpplay_sup}, rtpplay_sup, []).
 
 stop(_State) ->
     ok.
